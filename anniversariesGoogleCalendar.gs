@@ -262,12 +262,13 @@ function createCalendarEvent(calendarId, event) {
   var currentYear = new Date().getFullYear();
   var startDate = new Date(currentYear, event.date.getMonth(), event.date.getDate());
 
-  calendar.createAllDayEventSeries(
+  var series = calendar.createAllDayEventSeries(
     title,
     startDate, 
     CalendarApp.newRecurrence().addYearlyRule(),
     { description: description }
   );
+  series.setTransparency(CalendarApp.EventTransparency.TRANSPARENT)
 
   return title;
 }
