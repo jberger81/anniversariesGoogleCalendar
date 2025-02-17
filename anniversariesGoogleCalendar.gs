@@ -55,13 +55,13 @@
  *   report of created and deleted events. If empty, no email is sent.
  */
 function anniversaryEvents() {
-  var calendarId = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@group.calendar.google.com'; // Set your Google Calendar ID here
-  var recipientEmail = ''; // Set your E-Mail address here (optional)
+  const CALENDAR_ID = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@group.calendar.google.com'; // Set your Google Calendar ID here
+  const RECIPIENT_EMAIL = ''; // Set your E-Mail address here (optional)
 
   var currentYear = new Date().getFullYear();
 
   var contactEvents = getAllContactsEvents();
-  var calendarEvents = getAllCalendarEvents(calendarId, currentYear);
+  var calendarEvents = getAllCalendarEvents(CALENDAR_ID, currentYear);
 
   var syncActions = compareAndSyncEvents(contactEvents, calendarEvents);
   // Debug:
@@ -72,25 +72,25 @@ function anniversaryEvents() {
 
   syncActions.forEach(action => {
     if (action.eventId) {
-      var deletedEventTitle = deleteCalendarEvent(calendarId, action.eventId);
+      var deletedEventTitle = deleteCalendarEvent(CALENDAR_ID, action.eventId);
       if (deletedEventTitle) {
         deletedEvents.push(deletedEventTitle);
       }
     } else {
-      var createdEventTitle = createCalendarEvent(calendarId, action);
+      var createdEventTitle = createCalendarEvent(CALENDAR_ID, action);
       if (createdEventTitle) {
         createdEvents.push(createdEventTitle);
       }
     }
   });
 
-  if ((createdEvents.length > 0 || deletedEvents.length > 0) && recipientEmail) {
+  if ((createdEvents.length > 0 || deletedEvents.length > 0) && RECIPIENT_EMAIL) {
     createdEvents.sort();
     deletedEvents.sort();
     
     var reportMessage = 'Created Appointments:\n' + createdEvents.join('\n') + 
                         '\n\nDeleted Appointments:\n' + deletedEvents.join('\n');
-    MailApp.sendEmail(recipientEmail, 'Anniversaries Google Calendar Report', reportMessage);
+    MailApp.sendEmail(RECIPIENT_EMAIL, 'Anniversaries Google Calendar Report', reportMessage);
   }
 }
 
@@ -118,7 +118,7 @@ function getAllContactsEvents() {
       var connections = response.connections;
       if (connections) {
         connections.forEach(function(contact) {
-          var name = contact.names && contact.names[0] ? contact.names[0].displayName : "Unknown Name";
+          var name = contact.names && contact.names[0] ? contact.names[0].displayName : "Unbekannter Name";
           var currentYear = new Date().getFullYear() // Just in case no year is defined in contact
 
           if (contact.birthdays) {
@@ -127,7 +127,7 @@ function getAllContactsEvents() {
                 var year = birthday.date.year || currentYear;
                 var eventDate = new Date(year, birthday.date.month - 1, birthday.date.day)
                 contactsEvents.push({
-                  title: "Birthday: " + name,
+                  title: name + " hat Geburtstag",
                   date: eventDate,
                   contactId: contact.resourceName,
                 });
@@ -141,7 +141,7 @@ function getAllContactsEvents() {
                 var year = event.date.year || currentYear;
                 var eventDate = new Date(year, event.date.month - 1, event.date.day)
                 contactsEvents.push({
-                  title: event.formattedType + ": " + name,
+                  title: name + " (" + event.formattedType + ")",
                   date: eventDate,
                   contactId: contact.resourceName,
                 });
